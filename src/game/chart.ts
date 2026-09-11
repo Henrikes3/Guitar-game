@@ -25,4 +25,7 @@ export interface Chart {
   mode: ChartMode;
   events: ChartEvent[];
   duration: number; // seconds, used to know when the song ends
+  /** Link to the chord-chart page this exercise was transcribed from, if any. */
+  sourceUrl?: string;
+  sourceName?: string;
 }

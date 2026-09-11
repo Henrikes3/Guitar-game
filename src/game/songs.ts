@@ -113,7 +113,37 @@ const CHORD_PROGRESSION_CHART: Chart = (() => {
   };
 })();
 
-export const CHARTS: Chart[] = [OPEN_STRINGS_CHART, FIRST_FRETS_CHART, TWINKLE_CHART, CHORD_PROGRESSION_CHART];
+const UNRAVEL_CHART: Chart = (() => {
+  const events: ChordEvent[] = [];
+  // Main recurring progression of the verse/chorus loop, transcribed from the
+  // chord chart (chords only — no lyrics are stored here or anywhere in this
+  // project). Bm is a barre chord, a step up in difficulty from the other
+  // practice charts.
+  const progression = ['C', 'D', 'Bm', 'Em'];
+  const holdDuration = 3.2;
+  let time = 2;
+  for (let round = 0; round < 4; round++) {
+    for (const chordId of progression) {
+      events.push({ type: 'chord', time, chordId, holdDuration });
+      time += holdDuration;
+    }
+  }
+  return {
+    id: 'unravel',
+    title: 'Unravel (Abertura de Tokyo Ghoul)',
+    description:
+      `Loop principal da música em ${progression.join(' - ')}. Inclui o acorde Bm (pestana) — mais avançado que os outros exercícios. ` +
+      'Progressão simplificada a partir da cifra; pequenas variações da música original (como acordes de passagem) foram omitidas para manter o exercício redondo.',
+    bpm: 92,
+    mode: 'chords',
+    events,
+    duration: time + 1.5,
+    sourceUrl: 'https://www.cifraclub.com.br/som-de-anime/unravel-abertura-de-tokyo-ghoul/',
+    sourceName: 'Cifra Club',
+  };
+})();
+
+export const CHARTS: Chart[] = [OPEN_STRINGS_CHART, FIRST_FRETS_CHART, TWINKLE_CHART, CHORD_PROGRESSION_CHART, UNRAVEL_CHART];
 
 export function getChart(id: string): Chart | undefined {
   return CHARTS.find((c) => c.id === id);

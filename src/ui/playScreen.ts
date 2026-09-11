@@ -82,6 +82,11 @@ export class PlayScreen implements Screen {
                 : 'No modo teclado, aperte espaço no tempo de cada acorde para simular o dedilhado.'
             }
           </p>
+          ${
+            chart.sourceUrl
+              ? `<a class="play-source-link" href="${chart.sourceUrl}" target="_blank" rel="noopener noreferrer">Ver cifra completa no ${chart.sourceName ?? 'site de origem'} ↗</a>`
+              : ''
+          }
         </div>
       </div>
     `;

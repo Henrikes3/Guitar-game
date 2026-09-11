@@ -222,6 +222,32 @@ button {
   border-color: var(--accent);
 }
 
+.song-card-main {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+  color: inherit;
+  font: inherit;
+  width: 100%;
+}
+
+.song-card-source {
+  align-self: flex-start;
+  margin-top: 6px;
+  font-size: 0.8rem;
+  color: var(--info);
+  text-decoration: none;
+}
+
+.song-card-source:hover {
+  text-decoration: underline;
+}
+
 .lesson-card-title,
 .song-card-title {
   font-size: 1.15rem;
@@ -616,6 +642,17 @@ button {
 .play-hint {
   font-size: 0.82rem;
   max-width: 460px;
+}
+
+.play-source-link {
+  font-size: 0.85rem;
+  color: var(--info);
+  text-decoration: none;
+  margin-top: 4px;
+}
+
+.play-source-link:hover {
+  text-decoration: underline;
 }
 
 /* ---------- Results ---------- */

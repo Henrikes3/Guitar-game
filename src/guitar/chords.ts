@@ -135,6 +135,19 @@ export const CHORDS: Record<string, ChordShape> = {
     ],
     [0, 1],
   ),
+  Bm: defineChord(
+    'Bm',
+    'Bm',
+    'Si menor (pestana)',
+    [
+      { string: 1, fret: 2, finger: 1 },
+      { string: 2, fret: 4, finger: 3 },
+      { string: 3, fret: 4, finger: 4 },
+      { string: 4, fret: 3, finger: 2 },
+      { string: 5, fret: 2, finger: 1 },
+    ],
+    [0],
+  ),
 };
 
 export const CHORD_ORDER = ['Em', 'Am', 'C', 'G', 'D', 'E', 'A', 'Dm'];

@@ -14,11 +14,18 @@ export class SongSelectScreen implements Screen {
         <div class="song-list">
           ${CHARTS.map(
             (chart) => `
-            <button class="song-card" data-id="${chart.id}">
-              <span class="song-card-title">${chart.title}</span>
-              <span class="song-card-desc">${chart.description}</span>
-              <span class="song-card-tag">${chart.mode === 'notes' ? '🎵 Notas' : '🎼 Acordes'} · ${chart.bpm} BPM</span>
-            </button>
+            <div class="song-card">
+              <button class="song-card-main" data-id="${chart.id}">
+                <span class="song-card-title">${chart.title}</span>
+                <span class="song-card-desc">${chart.description}</span>
+                <span class="song-card-tag">${chart.mode === 'notes' ? '🎵 Notas' : '🎼 Acordes'} · ${chart.bpm} BPM</span>
+              </button>
+              ${
+                chart.sourceUrl
+                  ? `<a class="song-card-source" href="${chart.sourceUrl}" target="_blank" rel="noopener noreferrer">Ver cifra completa no ${chart.sourceName ?? 'site de origem'} ↗</a>`
+                  : ''
+              }
+            </div>
           `,
           ).join('')}
         </div>
@@ -28,7 +35,7 @@ export class SongSelectScreen implements Screen {
     root.querySelector('[data-action="back"]')?.addEventListener('click', () => {
       this.nav.go((nav) => new MenuScreen(nav));
     });
-    root.querySelectorAll<HTMLButtonElement>('.song-card').forEach((btn) => {
+    root.querySelectorAll<HTMLButtonElement>('.song-card-main').forEach((btn) => {
       btn.addEventListener('click', () => {
         const id = btn.dataset.id!;
         this.nav.go((nav) => new PlayScreen(nav, id));
