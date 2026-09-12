@@ -3,14 +3,9 @@ import { MenuScreen } from './menuScreen';
 import { PracticeScreen } from './practiceScreen';
 import { PitchDetector, type PitchFrame } from '../audio/pitchDetector';
 import { MelodyTranscriber, fitToRange, type NoteSegment } from '../transcribe/melodyTranscriber';
-import { OCARINA_MIN_MIDI, OCARINA_MAX_MIDI, solfegeName } from '../ocarina/fingering';
-import { frequencyToNote } from '../audio/noteUtils';
+import { OCARINA_MIN_MIDI, OCARINA_MAX_MIDI } from '../ocarina/fingering';
 import { saveSong } from '../songs/songStore';
-
-function noteLabel(midi: number): string {
-  const info = frequencyToNote(440 * Math.pow(2, (midi - 69) / 12));
-  return `${solfegeName(info.name)}${info.octave}`;
-}
+import { noteLabel, chipHtml } from './noteChip';
 
 export class TranscribeScreen implements Screen {
   private root: HTMLElement | null = null;
@@ -97,10 +92,7 @@ export class TranscribeScreen implements Screen {
       const notesEl = this.root?.querySelector<HTMLElement>('[data-el="notes"]');
       if (notesEl) {
         const last = after[after.length - 1];
-        const chip = document.createElement('span');
-        chip.className = 'note-chip';
-        chip.textContent = noteLabel(last.midi);
-        notesEl.appendChild(chip);
+        notesEl.insertAdjacentHTML('beforeend', chipHtml(last.midi, last.articulation, after.length === 1));
       }
     }
   }
@@ -138,8 +130,9 @@ export class TranscribeScreen implements Screen {
         <h1>Melodia capturada!</h1>
         <p class="tuner-hint">${this.finalSegments.length} notas detectadas.</p>
         <div class="note-chip-row" data-el="notes">
-          ${this.finalSegments.map((s) => `<span class="note-chip">${noteLabel(s.midi)}</span>`).join('')}
+          ${this.finalSegments.map((s, i) => chipHtml(s.midi, s.articulation, i === 0)).join('')}
         </div>
+        <p class="tie-legend"><span class="note-tie">‿</span> = mesma respiração (ligado) &nbsp;·&nbsp; sem marca = sopro novo</p>
         ${
           outOfRange > 0
             ? `<p class="tuner-status" data-el="range-warning">${outOfRange} nota(s) fora do alcance comum da ocarina de 12 furos.</p>
@@ -167,7 +160,7 @@ export class TranscribeScreen implements Screen {
   private save(): void {
     const input = this.root?.querySelector<HTMLInputElement>('[data-el="title"]');
     const title = input?.value.trim() || 'Melodia sem nome';
-    const notes = this.finalSegments.map((s) => ({ midi: s.midi, duration: Math.max(0.3, s.end - s.start) }));
+    const notes = this.finalSegments.map((s) => ({ midi: s.midi, duration: Math.max(0.3, s.end - s.start), articulation: s.articulation }));
     const song = saveSong(title, notes);
     this.nav.go((nav) => new PracticeScreen(nav, song.id));
   }

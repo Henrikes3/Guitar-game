@@ -1,9 +1,14 @@
+import type { Articulation } from '../transcribe/melodyTranscriber';
+
 const STORAGE_KEY = 'ocarina-hero:songs';
 
 export interface SavedNote {
   midi: number;
   /** seconds this note lasts, used only to pace playback/preview */
   duration: number;
+  /** 'isolated' = start a fresh breath/tonguing; 'continuous' = keep
+   *  blowing from the previous note, just change the fingering. */
+  articulation: Articulation;
 }
 
 export interface SavedSong {

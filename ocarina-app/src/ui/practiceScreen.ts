@@ -82,11 +82,19 @@ export class PracticeScreen implements Screen {
     const info = frequencyToNote(midiToFrequency(midi));
     const label = `${solfegeName(info.name)}${info.octave}`;
     const fingering = fingeringForMidi(midi);
+    const isFreshBreath = this.index === 0 || notes[this.index].articulation === 'isolated';
 
     const stepEl = root.querySelector<HTMLElement>('[data-el="step"]')!;
     stepEl.innerHTML = `
       <span class="lesson-step-counter">Nota ${this.index + 1} de ${notes.length}</span>
       <h2>${label}</h2>
+      <div class="breath-indicator ${isFreshBreath ? 'breath-indicator--new' : 'breath-indicator--tied'}">
+        ${
+          isFreshBreath
+            ? '🌬️ Sopro novo — comece a nota do zero'
+            : '🔗 Ligado — continue soprando, só troque o dedilhado'
+        }
+      </div>
       ${
         fingering
           ? `<div class="ocarina-diagrams">

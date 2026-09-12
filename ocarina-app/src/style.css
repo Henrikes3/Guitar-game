@@ -266,9 +266,22 @@ button {
 .note-chip-row {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 8px;
   margin: 14px 0;
   min-height: 2.2rem;
+}
+
+.note-tie {
+  color: var(--text-dim);
+  font-size: 1.3rem;
+  margin: 0 -2px;
+  line-height: 1;
+}
+
+.tie-legend {
+  font-size: 0.78rem;
+  margin-top: -6px;
 }
 
 .note-chip {
@@ -311,6 +324,25 @@ button {
   border-radius: 10px;
   padding: 12px 4px;
   font-weight: 700;
+}
+
+.legato-toggle {
+  display: block;
+  width: 100%;
+  max-width: 420px;
+  margin: 4px auto;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 0.95rem;
+}
+
+.legato-toggle--active {
+  border-color: var(--accent);
+  background: var(--card-bg-hover);
+  color: var(--accent);
 }
 
 .note-picker-button:hover {
@@ -398,6 +430,27 @@ button {
   font-size: 0.8rem;
   color: var(--text-dim);
   margin-bottom: 6px;
+}
+
+.breath-indicator {
+  display: inline-block;
+  margin: 4px 0 2px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.breath-indicator--new {
+  background: rgba(52, 211, 153, 0.12);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+}
+
+.breath-indicator--tied {
+  background: rgba(56, 189, 248, 0.12);
+  color: var(--info);
+  border: 1px solid var(--info);
 }
 
 .lesson-feedback {

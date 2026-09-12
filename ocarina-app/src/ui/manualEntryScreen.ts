@@ -1,21 +1,24 @@
 import type { Navigator, Screen } from './router';
 import { MenuScreen } from './menuScreen';
 import { PracticeScreen } from './practiceScreen';
-import { OCARINA_MIN_MIDI, OCARINA_MAX_MIDI, solfegeName } from '../ocarina/fingering';
-import { frequencyToNote, midiToFrequency } from '../audio/noteUtils';
+import { OCARINA_MIN_MIDI, OCARINA_MAX_MIDI } from '../ocarina/fingering';
+import { midiToFrequency } from '../audio/noteUtils';
 import { Synth } from '../audio/synth';
 import { saveSong } from '../songs/songStore';
+import { noteLabel, chipHtml } from './noteChip';
+import type { Articulation } from '../transcribe/melodyTranscriber';
 
 const DEFAULT_NOTE_DURATION = 0.5;
 
-function noteLabel(midi: number): string {
-  const info = frequencyToNote(midiToFrequency(midi));
-  return `${solfegeName(info.name)}${info.octave}`;
+interface ManualNote {
+  midi: number;
+  articulation: Articulation;
 }
 
 export class ManualEntryScreen implements Screen {
   private root: HTMLElement | null = null;
-  private sequence: number[] = [];
+  private sequence: ManualNote[] = [];
+  private legatoMode = false;
   private synth = new Synth();
 
   constructor(private nav: Navigator) {}
@@ -29,6 +32,14 @@ export class ManualEntryScreen implements Screen {
         <p class="tuner-hint">Clique nas notas na ordem da melodia. Já sabendo as notas de algum lugar, é só montar a sequência aqui.</p>
 
         <div class="note-picker" data-el="picker"></div>
+
+        <button class="legato-toggle" data-action="toggle-legato" aria-pressed="false">
+          🔗 Ligar próximas notas na mesma respiração: <strong data-el="legato-state">desligado</strong>
+        </button>
+        <p class="fingering-warning">
+          Deixe ligado enquanto uma sequência de notas for tocada num fôlego só (sem soprar de novo);
+          desligue quando precisar de um sopro novo.
+        </p>
 
         <div class="manual-sequence-row">
           <h3>Sequência</h3>
@@ -59,6 +70,7 @@ export class ManualEntryScreen implements Screen {
     }
 
     root.querySelector('[data-action="back"]')?.addEventListener('click', () => this.nav.go((nav) => new MenuScreen(nav)));
+    root.querySelector('[data-action="toggle-legato"]')?.addEventListener('click', () => this.toggleLegato());
     root.querySelector('[data-action="undo"]')?.addEventListener('click', () => {
       this.sequence.pop();
       this.renderSequence();
@@ -73,8 +85,18 @@ export class ManualEntryScreen implements Screen {
     this.renderSequence();
   }
 
+  private toggleLegato(): void {
+    this.legatoMode = !this.legatoMode;
+    const button = this.root?.querySelector<HTMLButtonElement>('[data-action="toggle-legato"]');
+    const stateEl = this.root?.querySelector<HTMLElement>('[data-el="legato-state"]');
+    if (stateEl) stateEl.textContent = this.legatoMode ? 'ligado' : 'desligado';
+    button?.setAttribute('aria-pressed', String(this.legatoMode));
+    button?.classList.toggle('legato-toggle--active', this.legatoMode);
+  }
+
   private addNote(midi: number): void {
-    this.sequence.push(midi);
+    const articulation: Articulation = this.sequence.length > 0 && this.legatoMode ? 'continuous' : 'isolated';
+    this.sequence.push({ midi, articulation });
     this.synth.resume();
     this.synth.playNote(midiToFrequency(midi), 0.35);
     this.renderSequence();
@@ -84,14 +106,14 @@ export class ManualEntryScreen implements Screen {
     const el = this.root?.querySelector<HTMLElement>('[data-el="sequence"]');
     if (!el) return;
     el.innerHTML = this.sequence.length
-      ? this.sequence.map((midi) => `<span class="note-chip">${noteLabel(midi)}</span>`).join('')
+      ? this.sequence.map((n, i) => chipHtml(n.midi, n.articulation, i === 0)).join('')
       : '<span class="note-chip-empty">(nenhuma nota ainda)</span>';
   }
 
   private preview(): void {
     this.synth.resume();
-    this.sequence.forEach((midi, i) => {
-      setTimeout(() => this.synth.playNote(midiToFrequency(midi), DEFAULT_NOTE_DURATION * 0.9), i * DEFAULT_NOTE_DURATION * 1000);
+    this.sequence.forEach((note, i) => {
+      setTimeout(() => this.synth.playNote(midiToFrequency(note.midi), DEFAULT_NOTE_DURATION * 0.9), i * DEFAULT_NOTE_DURATION * 1000);
     });
   }
 
@@ -99,7 +121,7 @@ export class ManualEntryScreen implements Screen {
     if (this.sequence.length === 0) return;
     const input = this.root?.querySelector<HTMLInputElement>('[data-el="title"]');
     const title = input?.value.trim() || 'Melodia sem nome';
-    const notes = this.sequence.map((midi) => ({ midi, duration: DEFAULT_NOTE_DURATION }));
+    const notes = this.sequence.map((n) => ({ midi: n.midi, duration: DEFAULT_NOTE_DURATION, articulation: n.articulation }));
     const song = saveSong(title, notes);
     this.nav.go((nav) => new PracticeScreen(nav, song.id));
   }

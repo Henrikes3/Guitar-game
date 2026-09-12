@@ -1,9 +1,15 @@
 import type { PitchFrame } from '../audio/pitchDetector';
 
+export type Articulation = 'isolated' | 'continuous';
+
 export interface NoteSegment {
   midi: number;
   start: number;
   end: number;
+  /** 'isolated' = start a fresh breath/tonguing on this note (a rest or the
+   *  start of the recording came before it). 'continuous' = keep blowing
+   *  from the previous note with no gap - just change the fingering. */
+  articulation: Articulation;
 }
 
 const SILENCE_HOLD_SECONDS = 0.15;
@@ -23,6 +29,7 @@ export class MelodyTranscriber {
   private segments: NoteSegment[] = [];
   private currentMidi: number | null = null;
   private currentStart = 0;
+  private currentArticulation: Articulation = 'isolated';
   private silenceSince: number | null = null;
 
   pushFrame(frame: PitchFrame, time: number): void {
@@ -41,21 +48,29 @@ export class MelodyTranscriber {
     this.silenceSince = null;
 
     if (this.currentMidi === null) {
-      this.currentMidi = detectedMidi;
-      this.currentStart = time;
+      // Nothing was sounding a moment ago (start of recording, or a rest) -
+      // this note begins a fresh breath.
+      this.startNote(detectedMidi, time, 'isolated');
       return;
     }
 
     if (detectedMidi !== this.currentMidi) {
+      // Pitch changed with no silence in between - same breath, just a
+      // different fingering.
       this.closeCurrentNote(time);
-      this.currentMidi = detectedMidi;
-      this.currentStart = time;
+      this.startNote(detectedMidi, time, 'continuous');
     }
+  }
+
+  private startNote(midi: number, time: number, articulation: Articulation): void {
+    this.currentMidi = midi;
+    this.currentStart = time;
+    this.currentArticulation = articulation;
   }
 
   private closeCurrentNote(endTime: number): void {
     if (this.currentMidi !== null && endTime - this.currentStart >= MIN_NOTE_DURATION_SECONDS) {
-      this.segments.push({ midi: this.currentMidi, start: this.currentStart, end: endTime });
+      this.segments.push({ midi: this.currentMidi, start: this.currentStart, end: endTime, articulation: this.currentArticulation });
     }
     this.currentMidi = null;
     this.silenceSince = null;
