@@ -9,6 +9,10 @@ aulas que ensina onde colocar os dedos, com diagramas.
 100% front-end, sem servidor: roda inteiro no navegador com Web Audio API +
 `<canvas>`.
 
+> Este repositório também tem um app irmão em [`ocarina-app/`](./ocarina-app/README.md) —
+> descobre as notas de uma música cantando/tocando perto do microfone e mostra o
+> dedilhado de ocarina. É um projeto Vite independente, com seu próprio `npm install`.
+
 ## Funcionalidades
 
 - **Afinador** — ouve o microfone e mostra a nota detectada, quantos "cents"
