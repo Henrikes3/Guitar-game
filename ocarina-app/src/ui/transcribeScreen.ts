@@ -35,8 +35,14 @@ export class TranscribeScreen implements Screen {
         <button class="back-button" data-action="back">← Voltar</button>
         <h1>Gravar melodia</h1>
         <p class="tuner-hint">
-          Cante, assobie ou toque a melodia BEM devagar, uma nota de cada vez, perto do microfone.
-          Uma pequena pausa entre as notas ajuda o app a separar cada uma.
+          Já sabe de cor uma música (tipo abertura de anime)? Cante ou assobie ela BEM devagar, uma nota de
+          cada vez, perto do microfone — não precisa achar a partitura em lugar nenhum. Uma pequena pausa
+          entre as notas ajuda o app a separar cada uma.
+        </p>
+        <p class="tuner-hint">
+          <strong>Não funciona bem</strong> apontando o microfone pra uma gravação da música tocando (banda
+          completa, bateria, vários instrumentos juntos) — o detector só entende uma nota de cada vez, então
+          o resultado sai bagunçado. Cantar/assobiar só a melodia funciona muito melhor.
         </p>
         <button class="primary-button" data-action="start">🎤 Ligar microfone e gravar</button>
         <p class="tuner-status" data-el="status"></p>
