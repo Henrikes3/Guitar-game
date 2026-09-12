@@ -1,0 +1,52 @@
+name: Build Ocarina Hero Android APK
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'ocarina-app/**'
+      - '.github/workflows/build-android.yml'
+  pull_request:
+    paths:
+      - 'ocarina-app/**'
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Install web app dependencies
+        working-directory: ocarina-app
+        run: npm ci
+
+      - name: Build web assets
+        working-directory: ocarina-app
+        run: npm run build
+
+      - name: Sync Capacitor Android project
+        working-directory: ocarina-app
+        run: npx cap sync android
+
+      - name: Make gradlew executable
+        run: chmod +x ocarina-app/android/gradlew
+
+      - name: Build debug APK
+        working-directory: ocarina-app/android
+        run: ./gradlew assembleDebug --no-daemon
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: ocarina-hero-debug-apk
+          path: ocarina-app/android/app/build/outputs/apk/debug/app-debug.apk
