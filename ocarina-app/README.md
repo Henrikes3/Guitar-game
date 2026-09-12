@@ -28,12 +28,27 @@ um padrão de "abrir os furos progressivamente" bem estabelecido; as notas suste
 aproximação (a técnica de meio-furo varia mais). Se algo soar errado no seu instrumento, me diga qual nota
 e o dedilhado correto que eu ajusto — é só uma tabela de dados, fácil de corrigir.
 
-## Por que PWA e não um APK nativo?
+## APK nativo (Android real, via Capacitor)
 
-Este ambiente não tem Android Studio/SDK/emulador para compilar e testar um APK de verdade — então a
-entrega que dá para construir *e validar* aqui é uma PWA (instalável, funciona offline, ícone na tela
-inicial). O código é 100% reaproveitável para empacotar como app nativo depois (ex: com
-[Capacitor](https://capacitorjs.com/)), caso você queira publicar na Play Store futuramente.
+Além da PWA, o projeto tem um app Android nativo de verdade em `android/` (gerado com
+[Capacitor](https://capacitorjs.com/) — uma WebView nativa embrulhando o mesmo app web). O ambiente onde
+este projeto é desenvolvido não tem Android SDK (o plugin do Gradle para Android só é distribuído via
+`dl.google.com`, bloqueado ali), então o `.apk` é compilado automaticamente pelo GitHub Actions a cada push
+em `ocarina-app/` — veja `.github/workflows/build-android.yml`.
+
+Para pegar o APK mais recente: aba **Actions** do repositório → workflow **"Build Ocarina Hero Android
+APK"** → última execução com ✅ → baixe o artefato **ocarina-hero-debug-apk** (é um .zip contendo o .apk).
+Esse é um APK de **debug**, não assinado para a Play Store — dá pra instalar direto no celular habilitando
+"instalar de fontes desconhecidas", mas para publicar de verdade seria preciso gerar uma build de release
+assinada.
+
+Para compilar localmente (com Android Studio/SDK instalado):
+
+```bash
+npm run build           # gera dist/
+npx cap sync android    # copia os assets pro projeto nativo
+cd android && ./gradlew assembleDebug
+```
 
 ## Como rodar
 
@@ -62,4 +77,4 @@ src/
 - Tabelas de dedilhado para ocarina de 4 ou 6 furos (layouts bem diferentes do 12 furos).
 - Deixar o usuário corrigir/salvar seu próprio dedilhado, caso o de referência não bata com o instrumento.
 - Quantizar o ritmo da melodia gravada (arredondar para semínimas/colcheias) em vez de usar a duração exata.
-- Empacotar como app Android nativo (Capacitor) para distribuir fora da web.
+- Build de release assinada (keystore) para publicar de verdade na Play Store, em vez de só o APK de debug.
